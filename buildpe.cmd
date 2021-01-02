@@ -1,5 +1,8 @@
-if "%WinPERoot%"=="" goto :usage
-if "%1"=="" goto :usage
+@echo off
+REM Based on WINPE 10 ADK instructions, build a Windows 10-based PE .ISO
+
+if "%WinPERoot%"=="" goto :usage2
+if "%1"=="" goto :usage1
 set ChosenArch=%1
 set PEDir=C:\PE%ChosenArch%Build
 set PEKitSrc=%WinPERoot%
@@ -12,9 +15,10 @@ set PEFSWindowsDir=%MountDir%\windows
 set PEFSSystem32=%PEFSWindowsDir%\system32
 set PEFSStartnet=%PEFSSystem32%\startnet.cmd
 
-set
-pause
+REM set
+REM pause
 
+if exist %PEDir% rd %PEDIR% /s /q
 REM Copy
 call copype.cmd %ChosenArch% %PEDir%
 
@@ -59,11 +63,17 @@ REM Unmount Image
 Dism /Unmount-Image /MountDir:"%MountDir%" /commit
 
 REM Generate ISO
+if exist  %PEDir%\WinPE10.iso del  %PEDir%\WinPE10.iso /Q
 call MakeWinPEMedia /ISO %PEDir% %PEDir%\WinPE10.iso
 
 goto :eof
-:usage
+:usage1
 echo %~nx0  { arm ^| arm64 ^| x86 ^| amd64 }
 echo.
 echo Please indicate the architecture.
+goto :eof
+:usage2
+echo %~nx0  { arm ^| arm64 ^| x86 ^| amd64 }
+echo.
 echo Please use this cmd from a "Deployment Wizard shell"
+goto :eof
